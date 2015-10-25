@@ -3,3 +3,10 @@
 # Example .gitignore files: https://github.com/github/gitignore
 /bower_components/
 /node_modules/
+/.classpath
+/.project
+/.settings/
+/bin/
+/target/
+/project/project/
+/project/target/
