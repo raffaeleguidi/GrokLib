@@ -3,6 +3,8 @@ import net.stoerr.grokconstructor._
 object GrokRunner {
     def main(args: Array[String]) {
 
+        println("GrokRunner")
+        println("============================================")
         val pattern2match = """^%{IPORHOST:clientip} (?:-|%{USER:ident}) (?:-|%{USER:auth}) \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|-)\" %{NUMBER:response} (?:-|%{NUMBER:bytes})"""
         var lines = """10.121.123.104 - - [01/Nov/2012:21:01:04 +0100] "GET /cluster HTTP/1.1" 200 1272
 10.121.123.104 - -    [01/Nov/2012:21:01:17 +0100] "GET /cpc/auth.do?loginsetup=true&targetPage=%2Fcpc%2F HTTP/1.1" 302 466
@@ -14,6 +16,7 @@ object GrokRunner {
         val lib = GrokPatternLibrary.load("patterns", additionalPatterns)
         val patternGrokked = GrokPatternLibrary.replacePatterns(pattern2match, lib)
         val regex = new JoniRegex(patternGrokked)
+        println("============================================")
 
         for (line <- lines.split(newline)) yield {
               regex.findIn(line) match {
