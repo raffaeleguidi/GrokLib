@@ -5,7 +5,7 @@ object GrokStartup {
 
         val pattern2match = """^%{IPORHOST:clientip} (?:-|%{USER:ident}) (?:-|%{USER:auth}) \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|-)\" %{NUMBER:response} (?:-|%{NUMBER:bytes})"""
         var lines = """10.121.123.104 - - [01/Nov/2012:21:01:04 +0100] "GET /cluster HTTP/1.1" 200 1272
-10.121.123.104 - - [01/Nov/2012:21:01:17 +0100] "GET /cpc/auth.do?loginsetup=true&targetPage=%2Fcpc%2F HTTP/1.1" 302 466
+10.121.123.104 - -    [01/Nov/2012:21:01:17 +0100] "GET /cpc/auth.do?loginsetup=true&targetPage=%2Fcpc%2F HTTP/1.1" 302 466
 10.121.123.104 - - [01/Nov/2012:21:01:18 +0100] "GET /cpc?loginsetup=true&targetPage=%252Fcpc%252F HTTP/1.1" 302 -
 10.121.123.104 - - [01/Nov/2012:21:01:18 +0100] "GET /cpc/auth.do?loginsetup=true&targetPage=%25252Fcpc%25252F&loginsetup=true HTTP/1.1" 302 494
 """
@@ -18,10 +18,10 @@ object GrokStartup {
         for (line <- lines.split(newline)) yield {
               regex.findIn(line) match {
                 case None =>
-                  println("NOT MATCHED", line)
+                  println("NOT MATCHED: " + line)
                 case Some(jmatch) =>
-                  println("MATCHED", line)
-                  for ((name, nameResult) <- jmatch.namedgroups) println(name, nameResult)
+                  println("MATCHED: " + line)
+                  for ((name, nameResult) <- jmatch.namedgroups) println("\t" + name + ": \"" + nameResult + "\"")
               }
           }
     }
