@@ -3,7 +3,7 @@ import net.stoerr.grokconstructor._
 object GrokStartup {
     def main(args: Array[String]) {
 
-        val pattern = """^%{IPORHOST:clientip} (?:-|%{USER:ident}) (?:-|%{USER:auth}) \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|-)\" %{NUMBER:response} (?:-|%{NUMBER:bytes})"""
+        val pattern2match = """^%{IPORHOST:clientip} (?:-|%{USER:ident}) (?:-|%{USER:auth}) \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|-)\" %{NUMBER:response} (?:-|%{NUMBER:bytes})"""
         var lines = """10.121.123.104 - - [01/Nov/2012:21:01:04 +0100] "GET /cluster HTTP/1.1" 200 1272
 10.121.123.104 - - [01/Nov/2012:21:01:17 +0100] "GET /cpc/auth.do?loginsetup=true&targetPage=%2Fcpc%2F HTTP/1.1" 302 466
 10.121.123.104 - - [01/Nov/2012:21:01:18 +0100] "GET /cpc?loginsetup=true&targetPage=%252Fcpc%252F HTTP/1.1" 302 -
@@ -11,11 +11,8 @@ object GrokStartup {
 """
         val additionalPatterns = "TEST %{GREEDYDATA}"
         val newline = "\n"
-        val lib = GrokPatternLibrary.mergePatternLibraries(
-            GrokPatternLibrary.grokpatternnames,
-            Option(additionalPatterns)
-        )
-        val patternGrokked = GrokPatternLibrary.replacePatterns(pattern, lib)
+        val lib = GrokPatternLibrary.load("patterns", additionalPatterns)
+        val patternGrokked = GrokPatternLibrary.replacePatterns(pattern2match, lib)
         val regex = new JoniRegex(patternGrokked)
 
         for (line <- lines.split(newline)) yield {
@@ -24,6 +21,7 @@ object GrokStartup {
                   println("NOT MATCHED", line)
                 case Some(jmatch) =>
                   println("MATCHED", line)
+                  for ((name, nameResult) <- jmatch.namedgroups) println(name, nameResult)
               }
           }
     }

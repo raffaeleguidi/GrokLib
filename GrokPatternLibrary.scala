@@ -13,27 +13,43 @@ import java.io.FileInputStream
  */
 object GrokPatternLibrary {
 
+    def getListOfFiles(dir: String): List[File] = {
+      val d = new File(dir)
+      if (d.exists && d.isDirectory) {
+        d.listFiles.filter(_.isFile).toList
+      } else {
+        List[File]()
+      }
+    }
+
+    def patternsInFolder(dir: String): List[String] = {
+        getListOfFiles(dir).map(_.getName)
+    }
+
+    def load(dir: String, additionalPatterns: String): Map[String, String] = {
+        GrokPatternLibrary.mergePatternLibraries(
+            dir,
+            GrokPatternLibrary.patternsInFolder(dir),
+            Option(additionalPatterns)
+        )
+    }
+
+
+
   val grokpatternnames = List("firewalls", "grok-patterns", "haproxy", "java", "junos", "linux-syslog", "mcollective",
     "mcollective-patterns", "mongodb", "nagios", "postgresql", "redis", "ruby")
 
-  def mergePatternLibraries(libraries: List[String], extrapatterns: Option[String]): Map[String, String] = {
+  def mergePatternLibraries(dir: String, libraries: List[String], extrapatterns: Option[String]): Map[String, String] = {
     val extrapatternlines: Iterator[String] = extrapatterns.map(Source.fromString(_).getLines()).getOrElse(Iterator())
-    val grokPatternSources = for (grokfile <- libraries) yield grokSource(grokfile).getLines()
+    val grokPatternSources = for (grokfile <- libraries) yield grokSource(dir, grokfile).getLines()
     val allPatternLines = grokPatternSources.fold(extrapatternlines)(_ ++ _)
     readGrokPatterns(allPatternLines)
   }
 
-/*
-  def grokSource(location: String): Source = {
-    if (!location.matches("^[a-z-]+$")) throw new IllegalArgumentException("Invalid fullpath " + location)
-    val inputStream: InputStream = getClass.getResourceAsStream("/grok/" + location)
+  def grokSource(dir: String, location: String): Source = {
+    val inputStream = new FileInputStream(new File(dir + "/" + location))
     if (null == inputStream) throw new IllegalArgumentException("Could not find " + location)
-    Source.fromInputStream(inputStream)
-  }
-*/
-  def grokSource(location: String): Source = {
-    val inputStream = new FileInputStream(new File("./grok/" + location))
-    if (null == inputStream) throw new IllegalArgumentException("Could not find " + location)
+    println(location)
     Source.fromInputStream(inputStream)
   }
 
