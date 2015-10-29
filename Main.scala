@@ -1,6 +1,6 @@
 import net.stoerr.grokconstructor._
 
-object GrokStartup {
+object GrokRunner {
     def main(args: Array[String]) {
 
         val pattern2match = """^%{IPORHOST:clientip} (?:-|%{USER:ident}) (?:-|%{USER:auth}) \[%{HTTPDATE:timestamp}\] \"(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|-)\" %{NUMBER:response} (?:-|%{NUMBER:bytes})"""
@@ -18,9 +18,9 @@ object GrokStartup {
         for (line <- lines.split(newline)) yield {
               regex.findIn(line) match {
                 case None =>
-                  println("NOT MATCHED: " + line)
+                  println("NOT MATCHED: \"" + line + "\"")
                 case Some(jmatch) =>
-                  println("MATCHED: " + line)
+                  println("MATCHED: \"" + line + "\"")
                   for ((name, nameResult) <- jmatch.namedgroups) println("\t" + name + ": \"" + nameResult + "\"")
               }
           }
